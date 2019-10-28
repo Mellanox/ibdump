@@ -1,0 +1,13 @@
+Source: ibdump
+Section: net
+Priority: extra
+Maintainer: mohammad <mohammad@unknown>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Standards-Version: 3.9.2
+Homepage: http://www.mellanox.com
+
+Package: ibdump
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Mellanox packets sniffer tool
+ This package contains sniffer tool for IB packets.

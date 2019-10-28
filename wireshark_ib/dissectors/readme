@@ -1,0 +1,3 @@
+Building plugin on Win32:
+    1- need glib precompiled - needed import lib
+    2- need libwireshark.a which can be created with pexports & dlltool
