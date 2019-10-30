@@ -30,6 +30,7 @@
 #define PM_ENCAP_ETHERTYPE 0x1123
 #define ERF_TYPE_ETH                2
 #define ERF_TYPE_INFINIBAND         21
+#define MAX_SRC_QPS 16
 
 typedef u_int64_t erf_timestamp_t;
 

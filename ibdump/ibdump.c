@@ -90,11 +90,8 @@ static u_int32_t mtu_enum_to_num(int mtu_e) {
 /*****************************************
 * Function: poll_completion
 *****************************************/
-static int poll_completion(
-                          struct resources *res,
-                          FILE* f,
-                          int idx,
-                          int* added_packets)
+static int poll_completion(struct resources *res, FILE* f,
+                           int idx, int* added_packets)
 {
     struct ibv_wc wc;
     struct timeval cur_time;
@@ -143,8 +140,6 @@ static int poll_completion(
         *added_packets = 0;
         return 0;
     }
-
-
 
     // fprintf(stdout, "completion was found in CQ with status 0x%x, bytes: %d\n", wc.status, wc.byte_len);
 
@@ -241,9 +236,7 @@ static int poll_completion(
 /*****************************************
 * Function: post_receive
 *****************************************/
-static int post_receive(
-                       struct resources *res,
-                       int idx)
+static int post_receive(struct resources *res, int idx)
 {
     struct ibv_recv_wr rr;
     struct ibv_sge sge;
@@ -279,8 +272,7 @@ static int post_receive(
 /*****************************************
 * Function: resources_init
 *****************************************/
-static void resources_init(
-                          struct resources *res)
+static void resources_init(struct resources *res)
 {
     res->dev_list = NULL;
     res->ib_ctx   = NULL;
@@ -319,8 +311,7 @@ int get_hw_devid(mfile* mf, u_int32_t* devid)
 /*****************************************
 * Function: resources_create
 *****************************************/
-static int resources_create(
-                           struct resources *res)
+static int resources_create(struct resources *res)
 {
     struct ibv_qp_init_attr qp_init_attr;
     struct ibv_device *ib_dev = NULL;
@@ -647,8 +638,7 @@ static int modify_qp_to_init(struct ibv_qp *qp, u_int8_t is_eth)
 /*****************************************
 * Function: modify_qp_to_rtr
 *****************************************/
-static int modify_qp_to_rtr(
-                           struct ibv_qp *qp)
+static int modify_qp_to_rtr(struct ibv_qp *qp)
 {
     struct ibv_qp_attr attr;
     int flags;
@@ -673,8 +663,7 @@ static int modify_qp_to_rtr(
 /*****************************************
 * Function: connect_qp
 *****************************************/
-static int connect_qp(
-                     struct resources *res)
+static int connect_qp(struct resources *res)
 {
     int rc;
     u_int32_t n;
@@ -708,8 +697,7 @@ static int connect_qp(
 /*****************************************
 * Function: resources_destroy
 *****************************************/
-static int resources_destroy(
-                            struct resources *res)
+static int resources_destroy(struct resources *res)
 {
     int test_result = 0;
 
@@ -828,10 +816,8 @@ int fw_version_less_than(char* fw_ver_a, char* fw_ver_b)
 }
 
 
-int fourth_gen_set_sw_sniffer(struct resources *res,
-                   int    mode,
-                   int    is_tx,
-                   int    is_rx)
+int fourth_gen_set_sw_sniffer(struct resources *res, int mode,
+                              int is_tx, int is_rx)
 {
 #ifndef WIN_NOT_SUPPORTED
 
@@ -956,10 +942,8 @@ int fifth_gen_set_sw_sniffer(struct resources *res,
 
 }
 #endif
-int set_sw_sniffer(struct resources *res,
-                   int    mode,
-                   int    is_tx,
-                   int    is_rx)
+int set_sw_sniffer(struct resources *res, int mode,
+                   int    is_tx, int is_rx)
 {
     if (res->dev_rev_id == DI_CIB || res->dev_rev_id == DI_CX4 ||
             res->dev_rev_id == DI_CX4LX || res->dev_rev_id == DI_CX5 ||
@@ -1111,24 +1095,21 @@ static void usage(const char *argv0)
 ******************************************
 *****************************************/
 
-#define MAX_SRC_QPS 16
-
 int __WIN_CDECL main(int argc, char *argv[])
 {
-    struct resources res;
+    int src_qps_size = MAX_SRC_QPS;
     int test_result = 1;
-    int idx;
-    int rc;
-    char* ef;
-    u_int32_t entries_mask;
+    int hw_sniffer_on = 0;
+    int sw_sniffer_on = 0;
     int sniff_tx = 1;
     int sniff_rx = 1;
-    int hw_sniffer_on = 0;
-    (void) hw_sniffer_on; //avoid not used variable warning
-    int sw_sniffer_on = 0;
     int iret;
+    int idx;
+    int rc;
     u_int32_t src_qps[MAX_SRC_QPS];
-    int       src_qps_size = MAX_SRC_QPS;
+    u_int32_t entries_mask;
+    struct resources res;
+    char* ef;
 #ifndef WIN_NOT_SUPPORTED
     pthread_t writer_thread;
 #endif
@@ -1136,6 +1117,8 @@ int __WIN_CDECL main(int argc, char *argv[])
         OPT_WITH_ERF    = 1000,
         OPT_A0_MODE     = 1001
     };
+
+    (void) hw_sniffer_on; //avoid not used variable warning.
 
     /* parse the command line parameters */
     while (1) {
