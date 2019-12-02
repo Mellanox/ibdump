@@ -1,11 +1,8 @@
 <p align="center">
-  
 ### Mellanox Technologies
-
+<br><br>
 ## ibdump HCA Sniffing Utility
 </p>
-
-# Table of Contents
 
 # Table of Contents
 1. Overview
