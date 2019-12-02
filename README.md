@@ -1,8 +1,8 @@
 <p align="center">
 
-<t1> Mellanox Technologies </t>
+<t6> Mellanox Technologies </t>
 <br>
-<t2> ibdump HCA Sniffing Utility </t>
+<t5> ibdump HCA Sniffing Utility </t>
 </p>
 
 # Table of Contents
