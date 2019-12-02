@@ -1,21 +1,16 @@
+## Mellanox Technologies - ibdump HCA Sniffing Utility
 
-                            Mellanox Technologies
 
-===============================================================================
-                      ibdump HCA Sniffing Utility 
-===============================================================================
-
-===============================================================================
-Table of Contents
-===============================================================================
+# Table of Contents
 1. Overview
 2. How to get Wireshark
 3. Known Issues
 4. How to Compile
 
-===============================================================================
-1. Overview
-===============================================================================
+
+
+
+# 1. Overview
 The ibdump tool dumps InfiniBand traffic that flows to and from Mellanox 
 adapter cards and provides a similar functionality to the tcpdump tool 
 on an Ethernet network.
@@ -25,9 +20,10 @@ Using this tool enables the user to analyze network behavior and performance,
 and to debug applications that send or receive InfiniBand network traffic.
 To display a help message which details the tools options run "ibdump -h". 
 
-===============================================================================
-2. How to Get Wireshark
-===============================================================================
+
+
+
+# 2. How to Get Wireshark
 Download the current release from www.wireshark.org for a Linux or Windows
 environment.
 
@@ -45,9 +41,10 @@ SDP, and FCoIB parsing, download the latest Wireshark daily build:
 - For Linux: Download the Wireshark dev source tarball from
   http://www.wireshark.org/download/automated/src/ and build it
 
-===============================================================================
-3. Known Issues
-===============================================================================
+
+
+
+# 3. Known Issues
 * ibdump may encounter packet drops upon a burst of more than 4096 (or
   2^max-burst) packets.
 * Packets loss is not reported by ibdump.
@@ -56,9 +53,10 @@ SDP, and FCoIB parsing, download the latest Wireshark daily build:
   Manager (E.G.: opensm). It is advised not to run the SM and ibdump on the same
   port.
 
-===============================================================================
-4. How to Compile
-===============================================================================
+
+
+
+# 4. How to Compile
 Setup desired                           | Compilation command
 MFT Library + OFED kernel               | make
 MFT Library + UPSREAM Kernel	        | make UPSTREAM_KERNEL=yes
