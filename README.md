@@ -1,8 +1,8 @@
 <p align="center">
-  
-### Mellanox Technologies
-<br><br>
-## ibdump HCA Sniffing Utility
+
+  ### Mellanox Technologies
+  <br><br>
+   ## ibdump HCA Sniffing Utility
 
 </p>
 
