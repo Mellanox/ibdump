@@ -1,6 +1,6 @@
 <p align="center">
 
-<t6> Mellanox Technologies </t>
+<font size="6">Mellanox Technologies</font>
 <br>
 <t5> ibdump HCA Sniffing Utility </t>
 </p>
