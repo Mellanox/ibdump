@@ -1,6 +1,4 @@
-## Mellanox Technologies
-
-## ibdump HCA Sniffing Utility
+## Mellanox Technologies = ibdump HCA Sniffing Utility
 
 
 # Table of Contents
