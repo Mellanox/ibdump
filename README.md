@@ -1,5 +1,5 @@
 ## Mellanox Technologies - ibdump HCA Sniffing Utility
-
+Project owner: Itay Avraham, itayavr@mellanox.com
 
 # Table of Contents
 1. Overview
