@@ -57,9 +57,10 @@ SDP, and FCoIB parsing, download the latest Wireshark daily build:
 
 
 # 4. How to Compile
-Setup desired                           | Compilation command
-MFT Library + OFED kernel               | make
-MFT Library + UPSREAM Kernel	        | make UPSTREAM_KERNEL=yes
-MSTFLINT Library + OFED kerne           | make WITH_MSTFLINT=yes
-MSTFLINT Library + UPSREAM kernel       | make WITH_MSTFLINT=yes UPSTREAM_KERNEL=yes
-Without FW tools	                    | make WITHOUT_FW_TOOLS=yes
+| Setup desired                      | Compilation command                           |
+| ---------------------------------- | :--------------------------------------------:|
+| MFT Library + OFED kernel          | make                                          |
+| MFT Library + UPSREAM Kernel	     | make UPSTREAM_KERNEL=yes                      |
+| MSTFLINT Library + OFED kerne      | make WITH_MSTFLINT=yes                        |
+| MSTFLINT Library + UPSREAM kernel  | make WITH_MSTFLINT=yes UPSTREAM_KERNEL=yes    |
+| Without FW tools	                 | make WITHOUT_FW_TOOLS=yes                     |
