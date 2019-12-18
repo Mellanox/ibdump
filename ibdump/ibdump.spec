@@ -11,8 +11,8 @@
 
 Summary: Mellanox InfiniBand sniffing application
 Name: ibdump 
-Version: 5.0.0
-Release: 5
+Version: 6.0.0
+Release: 1
 License: BSD2+GPL2
 Group: System Environment/Base
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -42,6 +42,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/vpi_tcpdump
 
 %changelog
+* Wed Dec 18 2019 Itay Avraham <itayavr@mellanox.com> 6.0.0-1
+- Move to Github
 * Sun Mar 19 2017 Adrian Chiris <adrianc@mellanox.co.il> 5.0.0
    ConnectX-5 Support
 * Mon Nov 12 2012 Oren Kladnitsky <orenk@mellanox.co.il> 1.0.6
