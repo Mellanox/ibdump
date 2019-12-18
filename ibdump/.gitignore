@@ -1,0 +1,8 @@
+debian/.debhelper/
+debian/files
+debian/ibdump.debhelper.log
+debian/ibdump.substvars
+debian/ibdump/
+ibdump
+ibdump.d
+ibdump.o
