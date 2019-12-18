@@ -6,11 +6,12 @@ MACH      = $(shell uname -m | sed -e 's/ //g')
 UNAME_M = $(shell uname -m)
 OS_NAME = $(shell lsb_release -si)
 
+MSTFLINT_INCLUDE_DIR = /usr/local/include/mstflint
 CFLAGS    += -Wall -W # -Werror
 CFLAGS    += -g
 CFLAGS    += -MP -MD -DPACKAGE_VERSION_STR=\"$(VERSION)\"
 ifeq ($(WITH_MSTFLINT),yes)
-CFLAGS    += -DWITH_MSTFLINT -DMST_UL -I/usr/local/include/mstflint/
+CFLAGS    += -DWITH_MSTFLINT -DMST_UL -I$(MSTFLINT_INCLUDE_DIR)
 else
 ifeq ($(WITHOUT_FW_TOOLS),yes)
 CFLAGS    += -DWITHOUT_FW_TOOLS
