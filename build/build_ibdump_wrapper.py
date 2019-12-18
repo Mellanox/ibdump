@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ##########################################
-# By: Adham Masarwah, adham@mellanox.com #
+# By: Itay Avraham, itayavr@mellanox.com #
 ##########################################
 
 ##########

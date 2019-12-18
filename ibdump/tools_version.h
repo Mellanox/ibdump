@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (c) 2011 Mellanox Technologies Ltd.  All rights reserved.
+ * Copyright (C) Jan 2019 Mellanox Technologies Ltd. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -30,10 +29,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- */
-//
-// Generic version for all tools
-//
+ * End of legal section ......................................................
+*/
 
 
 #include <stdio.h>

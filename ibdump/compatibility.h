@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Jan 2006 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (C) Jan 2019 Mellanox Technologies Ltd. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -29,11 +29,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- *  compatibility.h - Miscellaneous systems compatibility issues
- *
- *  Version: $Id: compatibility.h 3261 2007-01-28 14:59:53Z orenk $
- *
- */
+ * End of legal section ......................................................
+*/
 
 #ifndef COMPATIBILITY_H
 #define COMPATIBILITY_H

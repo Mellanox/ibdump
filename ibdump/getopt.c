@@ -1,9 +1,11 @@
 /*
- * Copyright (c) 2005 Mellanox Technologies.  All rights reserved.
- * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (C) Jan 2019 Mellanox Technologies Ltd. All rights reserved.
  *
- * This software is available to you under the OpenIB.org BSD license
- * below:
+ * This software is available to you under a choice of one of two
+ * licenses.  You may choose to be licensed under the terms of the GNU
+ * General Public License (GPL) Version 2, available from the file
+ * COPYING in the main directory of this source tree, or the
+ * OpenIB.org BSD license below:
  *
  *     Redistribution and use in source and binary forms, with or
  *     without modification, are permitted provided that the following
@@ -27,8 +29,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * $Id: getopt.c 1611 2006-08-20 14:48:55Z sleybo $
- */
+ * End of legal section ......................................................
+*/
+
 
 #include <stdio.h>
 #include <stdlib.h>
