@@ -1,4 +1,3 @@
-/*                  - Mellanox Confidential and Proprietary -
 /*
  * Copyright (C) Jan 2019 Mellanox Technologies Ltd. All rights reserved.
  *
