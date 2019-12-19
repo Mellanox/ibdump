@@ -1222,6 +1222,7 @@ int __WIN_CDECL main(int argc, char *argv[])
 
         case 'T':
             config.contiguous_pages = 1;
+	    /* fall through */
 
         case 'q':
             config.src_qp_str = optarg;

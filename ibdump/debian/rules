@@ -13,9 +13,23 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+BUILD_OFED = $(filter mlnx_ofed,$(DEB_BUILD_OPTIONS))
+ifeq (,$(BUILD_OFED))
+BUILD_OFED_ARG = UPSTREAM_KERNEL=yes
+endif
+make_opts = WITH_MSTFLINT=yes $(BUILD_OFED_ARG) MSTFLINT_INCLUDE_DIR=/usr/include/mstflint
+
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-
 %:
-	dh $@ 
+	dh $@
+
+override_dh_auto_clean:
+	dh_auto_clean -- $(make_opts)
+
+override_dh_auto_build:
+	dh_auto_build -- $(make_opts)
+
+override_dh_auto_install:
+	dh_auto_install -- $(make_opts)

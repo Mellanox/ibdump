@@ -1,14 +1,24 @@
-Summary: Mellanox InfiniBand sniffing application
-%define rel %(echo -n "") 
+%bcond_with mlnx_libs
+%if %{with mlnx_libs}
+%define upstream_arg %{nil}
+%else
+%define upstream_arg UPSTREAM_KERNEL=yes
+%endif
 
+%define make_opts WITH_MSTFLINT=yes %{upstream_arg} \\\
+	MSTFLINT_INCLUDE_DIR=/usr/include/mstflint  \\\
+	PREFIX=%{_prefix}
+
+Summary: Mellanox InfiniBand sniffing application
 Name: ibdump 
-Version: 5.0.0
-Release: 5
-License: Proprietary 
+Version: 6.0.0
+Release: 1
+License: BSD2+GPL2
 Group: System Environment/Base
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
-Source: %{name}-%{version}-%{release}.tgz
+Source: %{name}-%{version}.tgz
 ExclusiveArch: i386 i486 i586 i686 x86_64 ppc64 ppc64le aarch64
+Url: https://github.com/Mellanox/ibdump
 
 %description
 InfiniBand sniffer for MellanoX Technologies LTD. ConnectX HCAs
@@ -17,11 +27,11 @@ InfiniBand sniffer for MellanoX Technologies LTD. ConnectX HCAs
 %setup -n %{name}-%{version}
 
 %build
+%make_build %{make_opts}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make DESTDIR=${RPM_BUILD_ROOT} PREFIX=%{_prefix} ibdump
-make DESTDIR=${RPM_BUILD_ROOT} PREFIX=%{_prefix} install
+%{make_install} %{make_opts}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -32,6 +42,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/vpi_tcpdump
 
 %changelog
+* Wed Dec 18 2019 Itay Avraham <itayavr@mellanox.com> 6.0.0-1
+- Move to Github
 * Sun Mar 19 2017 Adrian Chiris <adrianc@mellanox.co.il> 5.0.0
    ConnectX-5 Support
 * Mon Nov 12 2012 Oren Kladnitsky <orenk@mellanox.co.il> 1.0.6
