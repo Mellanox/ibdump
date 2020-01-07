@@ -5,6 +5,10 @@
 %define upstream_arg UPSTREAM_KERNEL=yes
 %endif
 
+%if %{undefined make_build}
+%global make_build %{__make} %{?_smp_mflags}
+%endif
+
 %define make_opts WITH_MSTFLINT=yes %{upstream_arg} \\\
 	MSTFLINT_INCLUDE_DIR=/usr/include/mstflint  \\\
 	PREFIX=%{_prefix}
