@@ -61,6 +61,6 @@ SDP, and FCoIB parsing, download the latest Wireshark daily build:
 | ---------------------------------- | :-----------------------------------------------------:|
 | MFT Library + OFED kernel          | make [install]                                         |
 | MFT Library + UPSREAM Kernel	     | make UPSTREAM_KERNEL=yes [install]                     |
-| MSTFLINT Library + OFED kerne      | make WITH_MSTFLINT=yes [install]                       |
+| MSTFLINT Library + OFED kernel     | make WITH_MSTFLINT=yes [install]                       |
 | MSTFLINT Library + UPSREAM kernel  | make WITH_MSTFLINT=yes UPSTREAM_KERNEL=yes [install]   |
 | Without FW tools	                 | make WITHOUT_FW_TOOLS=yes [install]                    |
