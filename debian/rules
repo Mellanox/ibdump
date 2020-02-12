@@ -17,7 +17,7 @@ BUILD_OFED = $(filter mlnx_ofed,$(DEB_BUILD_OPTIONS))
 ifeq (,$(BUILD_OFED))
 BUILD_OFED_ARG = UPSTREAM_KERNEL=yes
 endif
-make_opts = WITH_MSTFLINT=yes $(BUILD_OFED_ARG) MSTFLINT_INCLUDE_DIR=/usr/include/mstflint
+make_opts = $(BUILD_OFED_ARG)
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
