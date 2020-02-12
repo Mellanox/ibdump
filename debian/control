@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Tzafrir Cohen <mellanox@cohens.org.il>
 Build-Depends: debhelper (>= 9.0.0),
- mstflint,
+# mft-devel,
  libibverbs-dev,
 Standards-Version: 4.1.4
 Homepage: https://github.com/Mellanox/ibdump

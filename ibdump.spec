@@ -16,9 +16,7 @@
 %global make_build %{__make} %{?_smp_mflags}
 %endif
 
-%define make_opts %{mstflint_arg} %{upstream_arg} \\\
-	MSTFLINT_INCLUDE_DIR=/usr/include/mstflint  \\\
-	PREFIX=%{_prefix}
+%define make_opts %{upstream_arg} PREFIX=%{_prefix}
 
 Summary: Mellanox InfiniBand sniffing application
 Name: ibdump 
