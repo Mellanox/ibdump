@@ -527,11 +527,9 @@ static int resources_create(struct resources *res)
         }
     } else {
 #ifndef WIN_NOT_SUPPORTED
-#ifdef UPSTREAM_KERNEL
-        res->mr = ibv_reg_mr(res->pd,NULL,
-                                res->entry_size * config.entries_num,
-                                IBV_ACCESS_LOCAL_WRITE);
-#else
+
+#ifdef LIBS_EXP
+        
         struct ibv_exp_reg_mr_in in;
         in.pd = res->pd;
         in.addr = NULL;
@@ -544,9 +542,15 @@ static int resources_create(struct resources *res)
             return 1;
         }
         res->buf[0] = res->mr->addr;
-#endif
 
 #else
+
+    res->mr = ibv_reg_mr(res->pd,NULL,
+                                    res->entry_size * config.entries_num,
+                                    IBV_ACCESS_LOCAL_WRITE);
+
+#endif
+
         if (res->buf) {
             free(res->buf);
         }
@@ -585,10 +589,10 @@ static int resources_create(struct resources *res)
 
 #ifndef WIN_NOT_SUPPORTED
     if (res->port_attr.link_layer == IBV_LINK_LAYER_ETHERNET) {
-#ifdef UPSTREAM_KERNEL
-        qp_init_attr.qp_type    = IBV_QPT_RAW_PACKET;
-#else
+#ifdef LIBS_EXP
         qp_init_attr.qp_type    = IBV_QPT_RAW_ETH;
+#else
+        qp_init_attr.qp_type    = IBV_QPT_RAW_PACKET;
 #endif
     } else {
         qp_init_attr.qp_type    = IBV_QPT_UD;
@@ -839,30 +843,7 @@ int fourth_gen_set_sw_sniffer(struct resources *res, int mode,
     (void) is_tx;
     (void) is_rx;
 
-#ifdef UPSTREAM_KERNEL
-
-    if (mode != 0) {
-        struct ibv_flow_attr flow_attr;
-        memset(&flow_attr, 0, sizeof(flow_attr));
-
-        flow_attr.type = IBV_FLOW_ATTR_SNIFFER;
-        flow_attr.size = sizeof(flow_attr);
-        flow_attr.port = config.ib_port;
-
-        res->flow = ibv_create_flow(res->qp, &flow_attr);
-        if (res->flow == NULL) {
-            fprintf(stderr, "-E- Failed to set sniffer mode. ibv_create_flow failed: %s\n"
-                            "    This problem might be because Flow Steering is not enabled, to enable it:\n"
-                            "    1. Add the following to /etc/modprobe.d/mlnx.conf file:\n"
-                            "       options mlx4_core log_num_mgm_entry_size=-1\n"
-                            "    2. Restart the drivers.\n"
-                            ,strerror(errno));
-            return -1;
-        }
-    } else {
-        ibv_destroy_flow(res->flow);
-    }
-#else
+#ifdef LIBS_EXP
 
     if (mode != 0) {
         struct ibv_exp_flow_attr flow_attr;
@@ -885,6 +866,30 @@ int fourth_gen_set_sw_sniffer(struct resources *res, int mode,
     } else {
         ibv_exp_destroy_flow(res->flow);
     }
+    
+#else
+
+    if (mode != 0) {
+            struct ibv_flow_attr flow_attr;
+            memset(&flow_attr, 0, sizeof(flow_attr));
+
+            flow_attr.type = IBV_FLOW_ATTR_SNIFFER;
+            flow_attr.size = sizeof(flow_attr);
+            flow_attr.port = config.ib_port;
+
+            res->flow = ibv_create_flow(res->qp, &flow_attr);
+            if (res->flow == NULL) {
+                fprintf(stderr, "-E- Failed to set sniffer mode. ibv_create_flow failed: %s\n"
+                                "    This problem might be because Flow Steering is not enabled, to enable it:\n"
+                                "    1. Add the following to /etc/modprobe.d/mlnx.conf file:\n"
+                                "       options mlx4_core log_num_mgm_entry_size=-1\n"
+                                "    2. Restart the drivers.\n"
+                                ,strerror(errno));
+                return -1;
+            }
+        } else {
+            ibv_destroy_flow(res->flow);
+        }
 
 #endif
 

@@ -2,7 +2,7 @@
 %if %{with mlnx_libs}
 %define upstream_arg %{nil}
 %else
-%define upstream_arg UPSTREAM_KERNEL=yes
+%define upstream_arg LIBS_EXP=yes
 %endif
 
 %bcond_with mstflint
