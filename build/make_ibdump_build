@@ -30,7 +30,7 @@ do_test=1
 without_fw_tools=0
 with_mstflint=0
 with_mft=0
-with_upstream_kernel=0
+with_libs_exp=0
 
 get_from_git() {
     ex git clone $git_repo
@@ -74,7 +74,7 @@ usage() {
     script=$(basename $0)
 
     echo "Usage: $script <--rc rc> [--ver version] [--repo repo] [--branch branch] [--git-rev rev/tag] [--notest]"
-    echo "[--with-upstream-kernel] [--with-mft] [--with-mstflint] [--without-fw-tools]"
+    echo "[--with-libs-exp] [--with-mft] [--with-mstflint] [--without-fw-tools]"
     echo ""
     echo "       This script pulls rev from git, copies the relevant files and creates a dist tar ball."
     echo "       It also opens the tar and makes for test."
@@ -123,8 +123,8 @@ while [ -n "$1" ]; do
             with_mft=1
             shift 1
             ;;
-        --with-upstream-kernel)
-            with_upstream_kernel=1
+        --with-libs-exp)
+            with_libs_exp=1
             shift 1
             ;;
         *)
@@ -198,8 +198,8 @@ if [ $with_mstflint -eq 1 ]; then
 sed -i '1iWITH_MSTFLINT    = yes' Makefile
 fi
 
-if [ $with_upstream_kernel -eq 1 ]; then
-sed -i '1iUPSTREAM_KERNEL    = yes' Makefile
+if [ $with_libs_exp -eq 1 ]; then
+sed -i '1iLIBS_EXP    = yes' Makefile
 fi
 
 # make dest dir and copy files

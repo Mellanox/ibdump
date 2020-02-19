@@ -21,8 +21,8 @@ WITH_MFT   = yes
 endif
 endif
 
-ifeq ($(UPSTREAM_KERNEL),yes)
-CFLAGS    += -DUPSTREAM_KERNEL
+ifeq ($(LIBS_EXP),yes)
+CFLAGS    += -DLIBS_EXP
 endif
 LOADLIBES =
 LDFLAGS  +=
