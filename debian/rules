@@ -14,7 +14,7 @@
 #export DH_VERBOSE=1
 
 BUILD_OFED = $(filter mlnx_ofed,$(DEB_BUILD_OPTIONS))
-ifeq (,$(BUILD_OFED))
+ifneq (,$(BUILD_OFED))
 BUILD_OFED_ARG = LIBS_EXP=yes
 endif
 make_opts = $(BUILD_OFED_ARG)

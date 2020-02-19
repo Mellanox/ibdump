@@ -1,8 +1,8 @@
 %bcond_with mlnx_libs
 %if %{with mlnx_libs}
-%define upstream_arg %{nil}
+%define libs_exp_arg LIBS_EXP=yes
 %else
-%define upstream_arg LIBS_EXP=yes
+%define libs_exp_arg %{nil}
 %endif
 
 %bcond_with mstflint
@@ -16,7 +16,7 @@
 %global make_build %{__make} %{?_smp_mflags}
 %endif
 
-%define make_opts %{upstream_arg} PREFIX=%{_prefix}
+%define make_opts %{libs_exp_arg} PREFIX=%{_prefix}
 
 Summary: Mellanox InfiniBand sniffing application
 Name: ibdump 
