@@ -60,6 +60,6 @@ SDP, and FCoIB parsing, download the latest Wireshark daily build:
 | Setup desired                      | Compilation command                                    |
 | ---------------------------------- | :-----------------------------------------------------:|
 | MFT Library + RDMA_CORE            | make [install]                                         |
-| MFT Library + LIBS_EXP     	     | make LIBS_EXP=yes [install]                            |
+| MFT Library + LIBS_EXP     	       | make LIBS_EXP=yes [install]                            |
 | MSTFLINT Library + RDMA_CORE       | make WITH_MSTFLINT=yes [install]                       |
 | Without FW tools	                 | make WITHOUT_FW_TOOLS=yes [install]                    |
