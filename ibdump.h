@@ -98,10 +98,10 @@ struct resources {
     mfile*                  mf;             /* CR access handle */
 #endif
 #ifndef WIN_NOT_SUPPORTED
-#ifdef UPSTREAM_KERNEL
-    struct ibv_flow*        flow;
-#else
+#ifdef LIBS_EXP
     struct ibv_exp_flow*    flow;
+#else
+    struct ibv_flow*        flow;
 #endif
 #else
     void*                   ibal_ctx;
