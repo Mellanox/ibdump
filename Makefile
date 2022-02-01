@@ -36,6 +36,7 @@ LOADLIBES   += -libverbs
 ifeq ($(WITH_MFT), yes)
 LIBMFT=/usr/lib/mft/
 LIB64MFT=/usr/lib64/mft/
+LIB64MFTCORE=/usr/lib64/mft/libmft_core.a
 ifneq "$(wildcard $(LIBMFT) )" ""
 LOADLIBES   += -L/usr/lib/mft/
 endif
@@ -43,6 +44,9 @@ ifneq "$(wildcard $(LIB64MFT) )" ""
 LOADLIBES   += -L/usr/lib64/mft/
 endif
 LOADLIBES   += -lmemaccess -lmtcr_ul -lcmdif -ldev_mgt -lreg_access -ltools_layouts
+ifneq "$(wildcard $(LIB64MFTCORE) )" ""
+LOADLIBES += -lmft_core -lstdc++
+endif
 endif
 
 ifeq ($(WITH_MSTFLINT), yes)

@@ -45,7 +45,9 @@ enum devid {
     DI_CX4 =    0x000209,
     DI_CX4LX =  0x00020b,
     DI_CX5 =    0x00020d,
-    DI_CX6 =    0x00020f
+    DI_CX6 =    0x00020f,
+    DI_CX6DX =  0x000212,
+    DI_CX7 =    0x000218
 };
 
 #endif
