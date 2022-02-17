@@ -44,7 +44,7 @@ endif
 ifneq "$(wildcard $(LIB64MFT) )" ""
 LOADLIBES   += -L/usr/lib64/mft/
 endif
-LOADLIBES   += -lmemaccess -lmtcr_ul -lcmdif -ldev_mgt -lreg_access -ltools_layouts
+LOADLIBES   += -lmemaccess -lmtcr_ul -lcmdif -ldev_mgt -lreg_access -ltools_layouts -lstdc++
 ifneq "$(wildcard $(LIBMFTCORE) )" ""
 LOADLIBES += -lmft_core -lstdc++
 endif
