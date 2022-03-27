@@ -52,6 +52,8 @@ SDP, and FCoIB parsing, download the latest Wireshark daily build:
 * ibdump may stop capturing packets when run on the same port of the Subnet
   Manager (E.G.: opensm). It is advised not to run the SM and ibdump on the same
   port.
+* Ibdump does not support 5th gen IB devices (ConnectX-4 & newer) when compiled without FW tools (when using make WITHOUT_FW_TOOLS=yes).
+  In order to use Ibdump on 5th generation ib devices please compile with one of the other options below.
 
 
 
