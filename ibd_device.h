@@ -47,6 +47,9 @@ enum devid {
     DI_CX5 =    0x00020d,
     DI_CX6 =    0x00020f,
     DI_CX6DX =  0x000212,
+    DI_BF2 =    0x000214,
+    DI_BF2A1 =  0x010214,
+    DI_BF3 =    0x00021c,
     DI_CX7 =    0x000218
 };
 
