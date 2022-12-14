@@ -44,7 +44,7 @@ endif
 ifneq "$(wildcard $(LIB64MFT) )" ""
 LOADLIBES   += -L/usr/lib64/mft/
 endif
-LOADLIBES   += -lmemaccess -lmtcr_ul -lcmdif -ldev_mgt -lreg_access -ltools_layouts -lstdc++
+LOADLIBES   += -lmemaccess -lcmdif -ldev_mgt -lreg_access -ltools_layouts -lmtcr_ul -lstdc++
 ifneq "$(wildcard $(LIBMFTCORE) )" ""
 LOADLIBES += -lmft_core -lstdc++
 endif
@@ -70,7 +70,7 @@ endif
 ifneq "$(wildcard $(LIB64MSTFLINT_LOCAL) )" ""
 LOADLIBES   += -L/usr/local/lib64/mstflint/
 endif
-LOADLIBES   += -lmtcr_ul -lcmdif -ldev_mgt -lreg_access -ltools_layouts
+LOADLIBES   += -lcmdif -ldev_mgt -lreg_access -ltools_layouts -lmtcr_ul
 endif
 
 LOADLIBES   += -ldl -lpthread
