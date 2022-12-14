@@ -447,7 +447,9 @@ static int resources_create(struct resources *res)
         res->dev_rev_id != DI_BF2 &&
         res->dev_rev_id != DI_BF2A1 &&
         res->dev_rev_id != DI_BF3 &&
-        res->dev_rev_id != DI_CX7) {
+        res->dev_rev_id != DI_BF4 &&
+        res->dev_rev_id != DI_CX7 &&
+        res->dev_rev_id != DI_CX8 ) {
         fprintf(stderr, "-E- Unsupported HW device id (%x)\n", res->dev_rev_id);
         return -1;
     }
