@@ -30,7 +30,7 @@
  * SOFTWARE.
  *
  * End of legal section ......................................................
-*/
+ */
 
 
 #include <stdio.h>
@@ -73,22 +73,28 @@
 
 int g_stop_sniffer = 0;
 
-void my_printf( const char* format, ... ) {
+void my_printf(const char* format, ...)
+{
     va_list args;
+
     if (!config.is_silent) {
-        va_start( args, format );
-        vfprintf( stdout, format, args );
-        va_end( args );
+        va_start(args, format);
+        vfprintf(stdout, format, args);
+        va_end(args);
     }
 }
 
-void* write_to_file(void *ptr) {
-    struct resources *res = (struct resources *) ptr;
-    int writer_current_buf = 0;
-    while(1) {
-        while(res->thread_status[writer_current_buf] == 0)
+void* write_to_file(void *ptr)
+{
+    struct resources *res = (struct resources *)ptr;
+    int               writer_current_buf = 0;
+
+    while (1) {
+        while (res->thread_status[writer_current_buf] == 0) {
             ;
-        int rc = fwrite(res->thread_buf[writer_current_buf], (size_t)(res->buf_length[writer_current_buf]), 1, res->fh);
+        }
+        int rc =
+            fwrite(res->thread_buf[writer_current_buf], (size_t)(res->buf_length[writer_current_buf]), 1, res->fh);
         if (rc != 1) {
             fprintf(stderr, "rc=%d -E- Failed writing to file: %s\n", rc, strerror(errno));
             exit(1);
@@ -98,40 +104,40 @@ void* write_to_file(void *ptr) {
     }
 }
 
-static u_int32_t mtu_enum_to_num(int mtu_e) {
-    return 256 * (1 << (mtu_e-1));
+static u_int32_t mtu_enum_to_num(int mtu_e)
+{
+    return 256 * (1 << (mtu_e - 1));
 }
 
 /*****************************************
 * Function: poll_completion
 *****************************************/
-static int poll_completion(struct resources *res, FILE* f,
-                           int idx, int* added_packets)
+static int poll_completion(struct resources *res, FILE* f, int idx, int* added_packets)
 {
-    struct ibv_wc wc;
-    struct timeval cur_time;
-    int rc;
-    rec_hdr_t hdr_obj;
-    rec_hdr_t* hdr = &hdr_obj;
+    struct ibv_wc        wc;
+    struct timeval       cur_time;
+    int                  rc;
+    rec_hdr_t            hdr_obj;
+    rec_hdr_t          * hdr = &hdr_obj;
     static unsigned long prev_print_time_sec = 0;
     static unsigned long prev_cap_time_sec = 0;
     static u_int64_t     printed_pkts = 1;
     u_int32_t            poll_count = 50000;
     int                  decap_offs = 0;
-    u_int32_t len;
-    u_int32_t header_size;
+    u_int32_t            len;
+    u_int32_t            header_size;
 
     if (!config.is_silent &&
-        prev_cap_time_sec > prev_print_time_sec &&
-        res->sniffed_pkts != printed_pkts) {
+        (prev_cap_time_sec > prev_print_time_sec) &&
+        (res->sniffed_pkts != printed_pkts)) {
         if (config.mem_size) {
             printf("\rCaptured:  %8" PRIu64 " packets, %8" PRIu64 "/%" PRIu64 " bytes     ",
-                   res->sniffed_pkts ,
+                   res->sniffed_pkts,
                    res->sniffed_bytes,
                    config.mem_size);
         } else {
             printf("\rCaptured:  %8" PRIu64 " packets, %8" PRIu64 " bytes     ",
-                   res->sniffed_pkts ,
+                   res->sniffed_pkts,
                    res->sniffed_bytes);
         }
         fflush(stdout);
@@ -141,7 +147,7 @@ static int poll_completion(struct resources *res, FILE* f,
 
     do {
         --poll_count;
-        rc = ibv_poll_cq(res->cq, 1, &wc); // TODO: Multiple WC poll
+        rc = ibv_poll_cq(res->cq, 1, &wc); /* TODO: Multiple WC poll */
         if (rc < 0) {
             fprintf(stderr, "-E- poll CQ failed\n");
             return 1;
@@ -151,18 +157,18 @@ static int poll_completion(struct resources *res, FILE* f,
     gettimeofday(&cur_time, NULL);
     prev_cap_time_sec = cur_time.tv_sec;
 
-    if (g_stop_sniffer || poll_count == 0) {
+    if (g_stop_sniffer || (poll_count == 0)) {
         *added_packets = 0;
         return 0;
     }
 
-    // fprintf(stdout, "completion was found in CQ with status 0x%x, bytes: %d\n", wc.status, wc.byte_len);
+    /* fprintf(stdout, "completion was found in CQ with status 0x%x, bytes: %d\n", wc.status, wc.byte_len); */
 
     /* check the completion status (here we don't care about the completion opcode */
     if (wc.status != IBV_WC_SUCCESS) {
         fprintf(stderr, "\n-E- got bad completion with status: 0x%x, vendor syndrome: 0x%x\n",
                 wc.status, wc.vendor_err);
-        //getchar();
+        /*getchar(); */
         return 1;
     }
 
@@ -171,24 +177,23 @@ static int poll_completion(struct resources *res, FILE* f,
     hdr->erf.flags = 4;
 
     if (config.decap_mode) {
-        // Decap - remove LRH, RWH, and CRC
-        if (((res->buf[idx][2] & 0x3) == 0 ) &&  // LRH->LNH Says RAW
-             (res->buf[idx][10] == (PM_ENCAP_ETHERTYPE >> 8)) &&
-             (res->buf[idx][11] == (PM_ENCAP_ETHERTYPE  & 0xff))) { // RWH->EtherType matches port mirroring encap
-
+        /* Decap - remove LRH, RWH, and CRC */
+        if (((res->buf[idx][2] & 0x3) == 0) &&   /* LRH->LNH Says RAW */
+            (res->buf[idx][10] == (PM_ENCAP_ETHERTYPE >> 8)) &&
+            (res->buf[idx][11] == (PM_ENCAP_ETHERTYPE & 0xff))) {   /* RWH->EtherType matches port mirroring encap */
             decap_offs = 16;
-            len -= 18; // remove LRW, RWH, Mirror_Prefix and VCRC
+            len -= 18; /* remove LRW, RWH, Mirror_Prefix and VCRC */
             hdr->erf.flags = 5;
         }
     }
 
     /* pcap header */
-    hdr->pcap.ts_sec   = cur_time.tv_sec;
-    hdr->pcap.ts_usec  = cur_time.tv_usec;
+    hdr->pcap.ts_sec = cur_time.tv_sec;
+    hdr->pcap.ts_usec = cur_time.tv_usec;
     hdr->pcap.orig_len = len;
     header_size = sizeof(hdr->pcap);
     if (config.with_erf) {
-        header_size        += sizeof(hdr->erf);
+        header_size += sizeof(hdr->erf);
         hdr->pcap.orig_len += sizeof(hdr->erf);
     }
 
@@ -196,37 +201,39 @@ static int poll_completion(struct resources *res, FILE* f,
     hdr->pcap.incl_len = hdr->pcap.orig_len;
 
     /* erf header */
-    hdr->erf.ts    =  ((u_int64_t)cur_time.tv_sec) << 32;
-    // 1<<32 / 10E6 = 4294.967296
-    // The below is an approximation which is 99.999% accurate.
-    // TODO - See if tehre's a better way to do that (performance wise)
-    hdr->erf.ts   += (u_int64_t)cur_time.tv_usec * 4295;
-    hdr->erf.lctr  = 0;
-    hdr->erf.wlen  = ntohs((u_int16_t)len);
-    hdr->erf.rlen  = ntohs(len + sizeof(hdr->erf)); // TODO - extra 6 bytes here ???
-    hdr->erf.type  = config.erf_type;
+    hdr->erf.ts = ((u_int64_t)cur_time.tv_sec) << 32;
+    /* 1<<32 / 10E6 = 4294.967296 */
+    /* The below is an approximation which is 99.999% accurate. */
+    /* TODO - See if tehre's a better way to do that (performance wise) */
+    hdr->erf.ts += (u_int64_t)cur_time.tv_usec * 4295;
+    hdr->erf.lctr = 0;
+    hdr->erf.wlen = ntohs((u_int16_t)len);
+    hdr->erf.rlen = ntohs(len + sizeof(hdr->erf));  /* TODO - extra 6 bytes here ??? */
+    hdr->erf.type = config.erf_type;
 
     if (config.mem_size) {
         if (!config.writer_thread) {
             memcpy(res->mem_buf + res->dumped_bytes, hdr, header_size);
             memcpy(res->mem_buf + res->dumped_bytes + header_size, res->buf[idx] + decap_offs, len);
         } else {
-            if((res->dumped_bytes + header_size + len) >= config.mem_size){
+            if ((res->dumped_bytes + header_size + len) >= config.mem_size) {
                 res->buf_length[res->network_current_buf] = res->dumped_bytes;
                 res->dumped_bytes = 0;
                 res->thread_status[res->network_current_buf] = 1;
                 res->network_current_buf = (res->network_current_buf + 1) % 2;
-                while(res->thread_status[res->network_current_buf] == 1)
+                while (res->thread_status[res->network_current_buf] == 1) {
                     ;
+                }
             }
             memcpy(res->thread_buf[res->network_current_buf] + res->dumped_bytes, hdr, header_size);
-            memcpy(res->thread_buf[res->network_current_buf] + res->dumped_bytes + header_size, res->buf[idx] + decap_offs, len);
+            memcpy(res->thread_buf[res->network_current_buf] + res->dumped_bytes + header_size,
+                   res->buf[idx] + decap_offs,
+                   len);
         }
     } else {
-
-        rc = fwrite(hdr, header_size , 1, f);
+        rc = fwrite(hdr, header_size, 1, f);
         if (rc == 1) {
-            rc = fwrite(res->buf[idx] + decap_offs, len , 1, f);
+            rc = fwrite(res->buf[idx] + decap_offs, len, 1, f);
         }
 
         if (rc != 1) {
@@ -241,7 +248,7 @@ static int poll_completion(struct resources *res, FILE* f,
     res->dumped_bytes += (header_size + len);
 
     *added_packets = 1;
-    res->sniffed_pkts  += 1;
+    res->sniffed_pkts += 1;
     res->sniffed_bytes += len;
 
 
@@ -253,25 +260,25 @@ static int poll_completion(struct resources *res, FILE* f,
 *****************************************/
 static int post_receive(struct resources *res, int idx)
 {
-    struct ibv_recv_wr rr;
-    struct ibv_sge sge;
+    struct ibv_recv_wr  rr;
+    struct ibv_sge      sge;
     struct ibv_recv_wr *bad_wr;
-    int rc;
+    int                 rc;
 
     /* prepare the scatter/gather entry
-       Reserve room for the pcap+erf headers before the packet data
-    */
+     *  Reserve room for the pcap+erf headers before the packet data
+     */
     memset(&sge, 0, sizeof(sge));
-    sge.addr   = (uintptr_t)(res->buf[idx]);
-    //sge.length = 4*1024; //orenk mtu_enum_to_num(res->port_attr.active_mtu) + GRH_SIZE;
+    sge.addr = (uintptr_t)(res->buf[idx]);
+    /*sge.length = 4*1024; //orenk mtu_enum_to_num(res->port_attr.active_mtu) + GRH_SIZE; */
     sge.length = res->entry_size;
-    sge.lkey   = res->mr->lkey;
+    sge.lkey = res->mr->lkey;
 
     /* prepare the RR */
     memset(&rr, 0, sizeof(rr));
 
-    rr.next    = NULL;
-    rr.wr_id   = 0;
+    rr.next = NULL;
+    rr.wr_id = 0;
     rr.sg_list = &sge;
     rr.num_sge = 1;
 
@@ -290,22 +297,22 @@ static int post_receive(struct resources *res, int idx)
 static void resources_init(struct resources *res)
 {
     res->dev_list = NULL;
-    res->ib_ctx   = NULL;
-    res->cq       = NULL;
-    res->qp       = NULL;
-    res->ah       = NULL;
-    res->pd       = NULL;
-    res->mr       = NULL;
-    res->buf      = NULL;
-    res->mem_buf  = NULL;
+    res->ib_ctx = NULL;
+    res->cq = NULL;
+    res->qp = NULL;
+    res->ah = NULL;
+    res->pd = NULL;
+    res->mr = NULL;
+    res->buf = NULL;
+    res->mem_buf = NULL;
     res->mem_buf2 = NULL;
-    res->fh       = NULL;
-    res->dumped_bytes  = 0;
+    res->fh = NULL;
+    res->dumped_bytes = 0;
     res->sniffed_bytes = 0;
-    res->sniffed_pkts  = 0;
+    res->sniffed_pkts = 0;
     res->network_current_buf = 0;
-    res->buf_length[1]    = res->buf_length[0]       = 0;
-    res->thread_status[1] = res->thread_status[0]    = 0;
+    res->buf_length[1] = res->buf_length[0] = 0;
+    res->thread_status[1] = res->thread_status[0] = 0;
 }
 
 
@@ -318,6 +325,7 @@ int get_hw_devid(mfile* mf, u_int32_t* devid)
     if (mread4(mf, 0xf0014, devid) != 4) {
         return -1;
     }
+    *devid = (*devid & 0xffff);
     return 0;
 }
 #endif
@@ -329,14 +337,14 @@ int get_hw_devid(mfile* mf, u_int32_t* devid)
 static int resources_create(struct resources *res)
 {
     struct ibv_qp_init_attr qp_init_attr;
-    struct ibv_device *ib_dev = NULL;
-    int i;
-    u_int32_t n;
-    int mr_flags = 0;
-    int cq_size = 0;
-    int num_devices;
-    int mtu;
-    char* tmp;
+    struct ibv_device      *ib_dev = NULL;
+    int                     i;
+    u_int32_t               n;
+    int                     mr_flags = 0;
+    int                     cq_size = 0;
+    int                     num_devices;
+    int                     mtu;
+    char                  * tmp;
 
     memset(res, 0, sizeof(*res));
     my_printf("searching for IB devices in host\n");
@@ -346,9 +354,9 @@ static int resources_create(struct resources *res)
     if (config.to_stdout) {
         res->fh = stdout;
     } else {
-        res->fh = fopen(config.out_file_name , "wb");
+        res->fh = fopen(config.out_file_name, "wb");
         if (res->fh == NULL) {
-            fprintf(stderr, "-E- Failed to open file %s: %s\n", config.out_file_name , strerror(errno));
+            fprintf(stderr, "-E- Failed to open file %s: %s\n", config.out_file_name, strerror(errno));
             return 1;
         }
     }
@@ -375,7 +383,7 @@ static int resources_create(struct resources *res)
         }
         config.dev_name = strdup(dev_name);
     } else {
-        for (i = 0; i < num_devices; i ++) {
+        for (i = 0; i < num_devices; i++) {
             if (!strcmp(ibv_get_device_name(res->dev_list[i]), config.dev_name)) {
                 ib_dev = res->dev_list[i];
                 break;
@@ -433,23 +441,23 @@ static int resources_create(struct resources *res)
         return -1;
     }
 
-    if (res->dev_rev_id != DI_CX &&
-        res->dev_rev_id != DI_CX2 &&
-        res->dev_rev_id != DI_CX3 &&
-        res->dev_rev_id != DI_CX3A1 &&
-        res->dev_rev_id != DI_CX3Pro &&
-        res->dev_rev_id != DI_CIB &&
-        res->dev_rev_id != DI_CX4 &&
-        res->dev_rev_id != DI_CX4LX &&
-        res->dev_rev_id != DI_CX5 &&
-        res->dev_rev_id != DI_CX6 &&
-        res->dev_rev_id != DI_CX6DX &&
-        res->dev_rev_id != DI_BF2 &&
-        res->dev_rev_id != DI_BF2A1 &&
-        res->dev_rev_id != DI_BF3 &&
-        res->dev_rev_id != DI_BF4 &&
-        res->dev_rev_id != DI_CX7 &&
-        res->dev_rev_id != DI_CX8 ) {
+    if ((res->dev_rev_id != DI_CX) &&
+        (res->dev_rev_id != DI_CX2) &&
+        (res->dev_rev_id != DI_CX3) &&
+        (res->dev_rev_id != DI_CX3A1) &&
+        (res->dev_rev_id != DI_CX3Pro) &&
+        (res->dev_rev_id != DI_CIB) &&
+        (res->dev_rev_id != DI_CX4) &&
+        (res->dev_rev_id != DI_CX4LX) &&
+        (res->dev_rev_id != DI_CX5) &&
+        (res->dev_rev_id != DI_CX6) &&
+        (res->dev_rev_id != DI_CX6DX) &&
+        (res->dev_rev_id != DI_BF2) &&
+        (res->dev_rev_id != DI_BF2A1) &&
+        (res->dev_rev_id != DI_BF3) &&
+        (res->dev_rev_id != DI_BF4) &&
+        (res->dev_rev_id != DI_CX7) &&
+        (res->dev_rev_id != DI_CX8)) {
         fprintf(stderr, "-E- Unsupported HW device id (%x)\n", res->dev_rev_id);
         return -1;
     }
@@ -482,22 +490,22 @@ static int resources_create(struct resources *res)
 
     /* allocate the memory buffer that will hold the data */
     /* To save resources, only 1 buffer is allocated (in buf[0])
-       buf[1..entries_num-1] points to this mem block
-       To save fime / mem acceses, a space for the pcap+erf headers
-       is saved before the pkt data
-    */
+     *  buf[1..entries_num-1] points to this mem block
+     *  To save fime / mem acceses, a space for the pcap+erf headers
+     *  is saved before the pkt data
+     */
 
     mtu = mtu_enum_to_num(res->port_attr.active_mtu);
 
     if (config.jumbo_mtu) {
-        res->entry_size = 1024*16;
+        res->entry_size = 1024 * 16;
     } else {
-        if (mtu <= 2*1024) {
-            // Seem that sniffer QP SGEs should be page aligned.
-            // TODO: Check why.
-            res->entry_size = 1024*4;
-        } else if (mtu <= 4*1024) {
-            res->entry_size = 1024*8;
+        if (mtu <= 2 * 1024) {
+            /* Seem that sniffer QP SGEs should be page aligned. */
+            /* TODO: Check why. */
+            res->entry_size = 1024 * 4;
+        } else if (mtu <= 4 * 1024) {
+            res->entry_size = 1024 * 8;
         } else {
             fprintf(stderr, "-E- MTU > 4KB is not supported (port is configured to %d bytes MTU)\n",
                     mtu);
@@ -512,10 +520,12 @@ static int resources_create(struct resources *res)
         return 1;
     }
 
-    if(!config.contiguous_pages) {
-        tmp = malloc(res->entry_size * config.entries_num + 0x1000); // Add 4KB to ensure MR is page aligned
+    if (!config.contiguous_pages) {
+        tmp = malloc(res->entry_size * config.entries_num + 0x1000); /* Add 4KB to ensure MR is page aligned */
         if (!tmp) {
-            fprintf(stderr, "-E- failed to allocate %d bytes to memory buffer data\n", res->entry_size * config.entries_num);
+            fprintf(stderr,
+                    "-E- failed to allocate %d bytes to memory buffer data\n",
+                    res->entry_size * config.entries_num);
             return 1;
         }
 
@@ -552,9 +562,9 @@ static int resources_create(struct resources *res)
 
 #else
 
-    res->mr = ibv_reg_mr(res->pd,NULL,
-                                    res->entry_size * config.entries_num,
-                                    IBV_ACCESS_LOCAL_WRITE);
+        res->mr = ibv_reg_mr(res->pd, NULL,
+                             res->entry_size * config.entries_num,
+                             IBV_ACCESS_LOCAL_WRITE);
 
 #endif
 
@@ -566,51 +576,51 @@ static int resources_create(struct resources *res)
 #endif
     }
 
-    memset(res->buf[0], 0, res->entry_size * config.entries_num); // TODO: redundant.
+    memset(res->buf[0], 0, res->entry_size * config.entries_num); /* TODO: redundant. */
     for (n = 1; n < config.entries_num; n++) {
         res->buf[n] = res->buf[0] + res->entry_size * n;
     }
 
     if (config.mem_size) {
-        // Allocate additional MTU entry to assure mem_size bytes are captured.
+        /* Allocate additional MTU entry to assure mem_size bytes are captured. */
         res->mem_buf = malloc((size_t)config.mem_size + res->entry_size);
         res->thread_buf[0] = res->mem_buf;
         if (config.writer_thread) {
             res->mem_buf2 = malloc((size_t)config.mem_size + res->entry_size);
             res->thread_buf[1] = res->mem_buf2;
         }
-        if (res->mem_buf == NULL || (config.writer_thread && res->mem_buf2 == NULL)) {
-            fprintf(stderr, "-E- failed to allocate %"PRIu64" bytes to memory buffer\n",
-                    config.mem_size +  res->entry_size);
+        if ((res->mem_buf == NULL) || (config.writer_thread && (res->mem_buf2 == NULL))) {
+            fprintf(stderr, "-E- failed to allocate %" PRIu64 " bytes to memory buffer\n",
+                    config.mem_size + res->entry_size);
             return 1;
         }
     }
 
-    my_printf("Port active_mtu=%d\n", mtu_enum_to_num(res->port_attr.active_mtu) );
+    my_printf("Port active_mtu=%d\n", mtu_enum_to_num(res->port_attr.active_mtu));
     my_printf("MR was registered with addr=%p, lkey=0x%x, rkey=0x%x, flags=0x%x\n",
               res->buf, res->mr->lkey, res->mr->rkey, mr_flags);
 
     /* create the Queue Pair */
     memset(&qp_init_attr, 0, sizeof(qp_init_attr));
-    qp_init_attr.qp_type    = IBV_QPT_UD;
+    qp_init_attr.qp_type = IBV_QPT_UD;
 
 #ifndef WIN_NOT_SUPPORTED
     if (res->port_attr.link_layer == IBV_LINK_LAYER_ETHERNET) {
 #ifdef LIBS_EXP
-        qp_init_attr.qp_type    = IBV_QPT_RAW_ETH;
+        qp_init_attr.qp_type = IBV_QPT_RAW_ETH;
 #else
-        qp_init_attr.qp_type    = IBV_QPT_RAW_PACKET;
+        qp_init_attr.qp_type = IBV_QPT_RAW_PACKET;
 #endif
     } else {
-        qp_init_attr.qp_type    = IBV_QPT_UD;
+        qp_init_attr.qp_type = IBV_QPT_UD;
     }
 #endif
 
     qp_init_attr.sq_sig_all = 1;
-    qp_init_attr.send_cq    = res->cq;
-    qp_init_attr.recv_cq    = res->cq;
-    qp_init_attr.cap.max_send_wr  = 1;
-    qp_init_attr.cap.max_recv_wr  = config.entries_num;
+    qp_init_attr.send_cq = res->cq;
+    qp_init_attr.recv_cq = res->cq;
+    qp_init_attr.cap.max_send_wr = 1;
+    qp_init_attr.cap.max_recv_wr = config.entries_num;
     qp_init_attr.cap.max_send_sge = 1;
     qp_init_attr.cap.max_recv_sge = 1;
 
@@ -629,8 +639,8 @@ static int resources_create(struct resources *res)
 static int modify_qp_to_init(struct ibv_qp *qp, u_int8_t is_eth)
 {
     struct ibv_qp_attr attr;
-    int flags;
-    int rc;
+    int                flags;
+    int                rc;
 
 
     /* do the following QP transition: RESET -> INIT */
@@ -641,7 +651,7 @@ static int modify_qp_to_init(struct ibv_qp *qp, u_int8_t is_eth)
     attr.pkey_index = 0;
     attr.qkey = DEF_QKEY;
 
-    //orenk-eth
+    /*orenk-eth */
     if (is_eth) {
         flags = IBV_QP_STATE | IBV_QP_PORT;
     } else {
@@ -667,8 +677,8 @@ static int modify_qp_to_init(struct ibv_qp *qp, u_int8_t is_eth)
 static int modify_qp_to_rtr(struct ibv_qp *qp)
 {
     struct ibv_qp_attr attr;
-    int flags;
-    int rc;
+    int                flags;
+    int                rc;
 
     /* do the following QP transition: INIT -> RTR */
     memset(&attr, 0, sizeof(attr));
@@ -691,7 +701,7 @@ static int modify_qp_to_rtr(struct ibv_qp *qp)
 *****************************************/
 static int connect_qp(struct resources *res)
 {
-    int rc;
+    int       rc;
     u_int32_t n;
 
     /* modify the QP to init */
@@ -729,16 +739,17 @@ static int resources_destroy(struct resources *res)
 
     if (config.mem_size) {
         if (config.writer_thread) {
-            if(res->dumped_bytes){
+            if (res->dumped_bytes) {
                 res->buf_length[res->network_current_buf] = res->dumped_bytes;
                 res->dumped_bytes = 0;
                 res->thread_status[res->network_current_buf] = 1;
-                while(res->thread_status[res->network_current_buf] == 1)
+                while (res->thread_status[res->network_current_buf] == 1) {
                     ;
+                }
             }
-        } else if (res->dumped_bytes > 0 && res->fh) {
+        } else if ((res->dumped_bytes > 0) && res->fh) {
             int rc;
-            rc = fwrite(res->mem_buf, (size_t)res->dumped_bytes , 1, res->fh);
+            rc = fwrite(res->mem_buf, (size_t)res->dumped_bytes, 1, res->fh);
             if (rc != 1) {
                 fprintf(stderr, "-E- Failed writing to file: %s\n", strerror(errno));
                 return 1;
@@ -747,8 +758,9 @@ static int resources_destroy(struct resources *res)
         }
     }
 
-    if (config.dev_name)
+    if (config.dev_name) {
         free(config.dev_name);
+    }
 
     if (res->fh && !config.to_stdout) {
         fclose(res->fh);
@@ -768,17 +780,21 @@ static int resources_destroy(struct resources *res)
         }
     }
 
-    if (res->mem_buf)
+    if (res->mem_buf) {
         free(res->mem_buf);
+    }
 
-    if (res->mem_buf2)
+    if (res->mem_buf2) {
         free(res->mem_buf2);
+    }
 
-    if (res->buf && res->buf_alloc_ptr)
+    if (res->buf && res->buf_alloc_ptr) {
         free(res->buf_alloc_ptr);
+    }
 
-    if (res->buf)
+    if (res->buf) {
         free(res->buf);
+    }
 
     if (res->cq) {
         if (ibv_destroy_cq(res->cq)) {
@@ -808,19 +824,20 @@ static int resources_destroy(struct resources *res)
         }
     }
 
-    if (res->dev_list)
+    if (res->dev_list) {
         ibv_free_device_list(res->dev_list);
+    }
 
     return test_result;
 }
 
-// fw_ver_a/b are 3 dotted strings in format "magor.minor.sub_minor"
-// Returns 1 if fw_ver_a is less than fw_ver_b
-//         0 if fw_ver_a is greater or equal than fw_ver_b
-//        -1 if either string has bad format
+/* fw_ver_a/b are 3 dotted strings in format "magor.minor.sub_minor" */
+/* Returns 1 if fw_ver_a is less than fw_ver_b */
+/*         0 if fw_ver_a is greater or equal than fw_ver_b */
+/*        -1 if either string has bad format */
 int fw_version_less_than(char* fw_ver_a, char* fw_ver_b)
 {
-    int i;
+    int       i;
     u_int32_t ver_a[3];
     u_int32_t ver_b[3];
 
@@ -832,23 +849,24 @@ int fw_version_less_than(char* fw_ver_a, char* fw_ver_b)
         return -1;
     }
 
-    for (i = 0; i < 3 ; i++)
-        if (ver_a[i] < ver_b[i])
+    for (i = 0; i < 3; i++) {
+        if (ver_a[i] < ver_b[i]) {
             return 1;
-        else if (ver_a[i] > ver_b[i])
+        } else if (ver_a[i] > ver_b[i]) {
             return 0;
+        }
+    }
 
-    return 0; // equal versions
+    return 0; /* equal versions */
 }
 
 
-int fourth_gen_set_sw_sniffer(struct resources *res, int mode,
-                              int is_tx, int is_rx)
+int fourth_gen_set_sw_sniffer(struct resources *res, int mode, int is_tx, int is_rx)
 {
 #ifndef WIN_NOT_SUPPORTED
 
-    (void) is_tx;
-    (void) is_rx;
+    (void)is_tx;
+    (void)is_rx;
 
 #ifdef LIBS_EXP
 
@@ -863,11 +881,11 @@ int fourth_gen_set_sw_sniffer(struct resources *res, int mode,
         res->flow = ibv_exp_create_flow(res->qp, &flow_attr);
         if (res->flow == NULL) {
             fprintf(stderr, "-E- Failed to set sniffer mode. ibv_create_flow failed: %s\n"
-                            "    This problem might be because Flow Steering is not enabled, to enable it:\n"
-                            "    1. Add the following to /etc/modprobe.d/mlnx.conf file:\n"
-                            "       options mlx4_core log_num_mgm_entry_size=-1\n"
-                            "    2. Restart the drivers.\n"
-                            ,strerror(errno));
+                    "    This problem might be because Flow Steering is not enabled, to enable it:\n"
+                    "    1. Add the following to /etc/modprobe.d/mlnx.conf file:\n"
+                    "       options mlx4_core log_num_mgm_entry_size=-1\n"
+                    "    2. Restart the drivers.\n"
+                    , strerror(errno));
             return -1;
         }
     } else {
@@ -877,30 +895,30 @@ int fourth_gen_set_sw_sniffer(struct resources *res, int mode,
 #else
 
     if (mode != 0) {
-            struct ibv_flow_attr flow_attr;
-            memset(&flow_attr, 0, sizeof(flow_attr));
+        struct ibv_flow_attr flow_attr;
+        memset(&flow_attr, 0, sizeof(flow_attr));
 
-            flow_attr.type = IBV_FLOW_ATTR_SNIFFER;
-            flow_attr.size = sizeof(flow_attr);
-            flow_attr.port = config.ib_port;
+        flow_attr.type = IBV_FLOW_ATTR_SNIFFER;
+        flow_attr.size = sizeof(flow_attr);
+        flow_attr.port = config.ib_port;
 
-            res->flow = ibv_create_flow(res->qp, &flow_attr);
-            if (res->flow == NULL) {
-                fprintf(stderr, "-E- Failed to set sniffer mode. ibv_create_flow failed: %s\n"
-                                "    This problem might be because Flow Steering is not enabled, to enable it:\n"
-                                "    1. Add the following to /etc/modprobe.d/mlnx.conf file:\n"
-                                "       options mlx4_core log_num_mgm_entry_size=-1\n"
-                                "    2. Restart the drivers.\n"
-                                ,strerror(errno));
-                return -1;
-            }
-        } else {
-            ibv_destroy_flow(res->flow);
+        res->flow = ibv_create_flow(res->qp, &flow_attr);
+        if (res->flow == NULL) {
+            fprintf(stderr, "-E- Failed to set sniffer mode. ibv_create_flow failed: %s\n"
+                    "    This problem might be because Flow Steering is not enabled, to enable it:\n"
+                    "    1. Add the following to /etc/modprobe.d/mlnx.conf file:\n"
+                    "       options mlx4_core log_num_mgm_entry_size=-1\n"
+                    "    2. Restart the drivers.\n"
+                    , strerror(errno));
+            return -1;
         }
+    } else {
+        ibv_destroy_flow(res->flow);
+    }
 
 #endif
 
-#else
+#else  /* ifndef WIN_NOT_SUPPORTED */
     int rc;
     if (mode != 0) {
         rc = ibd_ibal_open_sniffer(res->device_attr.node_guid,
@@ -916,15 +934,14 @@ int fourth_gen_set_sw_sniffer(struct resources *res, int mode,
         ibd_ibal_close_sniffer(res->ibal_ctx);
     }
 
-#endif
+#endif /* ifndef WIN_NOT_SUPPORTED */
     return 0;
 }
 
 #if defined(__WIN__) || defined(WITHOUT_FW_TOOLS)
-int fifth_gen_set_sw_sniffer(struct resources *res,
-                             int mode)
+int fifth_gen_set_sw_sniffer(struct resources *res, int mode)
 {
-    (void) mode; //avoid not used warnings.
+    (void)mode;  /*avoid not used warnings. */
     fprintf(stderr, "-E- Unsupported HW device id (%x)\n", res->dev_rev_id);
     return 1;
 }
@@ -937,18 +954,16 @@ int fifth_gen_set_sw_sniffer(struct resources *res,
 #else
 #include <cmdif/cib_cif.h>
 #endif
-int fifth_gen_set_sw_sniffer(struct resources *res,
-                             int mode)
+int fifth_gen_set_sw_sniffer(struct resources *res, int mode)
 {
-
     struct connectib_icmd_set_port_sniffer set_port_sniffer;
-    int rc;
+    int                                    rc;
 
-    // To disable write protection
+    /* To disable write protection */
     mwrite4(res->mf, 0x23f0, 0xbadc0ffe);
 
     memset(&set_port_sniffer, 0, sizeof(struct connectib_icmd_set_port_sniffer));
-    set_port_sniffer.port        = config.ib_port;
+    set_port_sniffer.port = config.ib_port;
     set_port_sniffer.sniffer_qpn = res->qp->qp_num;
     set_port_sniffer.sx_rx_ = 0;
     set_port_sniffer.attach_detach_ = mode;
@@ -966,33 +981,31 @@ int fifth_gen_set_sw_sniffer(struct resources *res,
         return 1;
     }
     return 0;
-
 }
 #endif
-int set_sw_sniffer(struct resources *res, int mode,
-                   int    is_tx, int is_rx)
+int set_sw_sniffer(struct resources *res, int mode, int is_tx, int is_rx)
 {
-    if (res->dev_rev_id == DI_CIB || res->dev_rev_id == DI_CX4 ||
-            res->dev_rev_id == DI_CX4LX || res->dev_rev_id == DI_CX5 ||
-            res->dev_rev_id == DI_CX6 || res->dev_rev_id == DI_CX6DX ||
-            res->dev_rev_id == DI_CX7) {
+    if ((res->dev_rev_id == DI_CIB) || (res->dev_rev_id == DI_CX4) ||
+        (res->dev_rev_id == DI_CX4LX) || (res->dev_rev_id == DI_CX5) ||
+        (res->dev_rev_id == DI_CX6) || (res->dev_rev_id == DI_CX6DX) ||
+        (res->dev_rev_id == DI_CX7)) {
         return fifth_gen_set_sw_sniffer(res, mode);
     }
     return fourth_gen_set_sw_sniffer(res, mode, is_tx, is_rx);
 }
 
 #define MAX_ARG_SIZE 1024
-// size in INOUT - IN - size of arr. OUT - actual count.
+/* size in INOUT - IN - size of arr. OUT - actual count. */
 int csv_to_num_array(char* csv_line, u_int32_t arr[], int* size)
 {
-    char buff[MAX_ARG_SIZE];
+    char  buff[MAX_ARG_SIZE];
     char *p;
-    int  i;
+    int   i;
 
     strncpy(buff, csv_line, MAX_ARG_SIZE);
-    p = strtok(buff , ",");
+    p = strtok(buff, ",");
 
-    for (i = 0, p = strtok(buff , ","); p ; p = strtok(NULL , ","), ++i) {
+    for (i = 0, p = strtok(buff, ","); p; p = strtok(NULL, ","), ++i) {
         char* ep;
 
         if (i >= *size) {
@@ -1013,15 +1026,15 @@ int csv_to_num_array(char* csv_line, u_int32_t arr[], int* size)
 
 int set_pcap_header(FILE* fh)
 {
-    int rc;
+    int        rc;
     pcap_hdr_t hdr;
 
     memset(&hdr, 0, sizeof(hdr));
 
-    hdr.magic_number =  0xa1b2c3d4; /* pcap magic */
+    hdr.magic_number = 0xa1b2c3d4;  /* pcap magic */
     hdr.version_major = 2;
     hdr.version_minor = 4;
-    hdr.snaplen       = 0xffff;
+    hdr.snaplen = 0xffff;
 
     /* pcap header erf settings  */
     if (config.with_erf == -1) {
@@ -1032,7 +1045,7 @@ int set_pcap_header(FILE* fh)
         }
     }
 
-    // NOTE: Assuming no ERF is eth. Currently no DLT_INFINIBAND
+    /* NOTE: Assuming no ERF is eth. Currently no DLT_INFINIBAND */
     hdr.network = config.with_erf ? DLT_ERF : DLT_EN10MB;
 
     rc = fwrite(&hdr, sizeof(hdr), 1, fh);
@@ -1049,7 +1062,7 @@ int set_pcap_header(FILE* fh)
 static void print_config(void)
 {
     fprintf(stdout, " ------------------------------------------------\n");
-// TODO: Add RX/TX/BOTH mode
+/* TODO: Add RX/TX/BOTH mode */
     fprintf(stdout, " Device                         : \"%s\"\n", config.dev_name);
     fprintf(stdout, " Physical port                  : %u\n", config.ib_port);
     fprintf(stdout, " Link layer                     : %s\n", config.is_eth ? "Ethernet" : "Infiniband");
@@ -1066,11 +1079,11 @@ static void print_config(void)
 /*****************************************
 * Function: termination_handler
 *****************************************/
-static void __WIN_CDECL termination_handler(int signum) {
+static void __WIN_CDECL termination_handler(int signum)
+{
     my_printf("\n\nInterrupted (signal %d) - exiting ...\n", signum);
     g_stop_sniffer = 1;
 }
-
 
 
 /*****************************************
@@ -1079,7 +1092,7 @@ static void __WIN_CDECL termination_handler(int signum) {
 static void usage(const char *argv0)
 {
     fprintf(stdout, "   ibdump - Dump Infiniband traffic from Mellanox Technologies ConnectX HCA\n"
-                    "            The dump file can be loaded by Wireshark for graphical traffic analysis\n\n");
+            "            The dump file can be loaded by Wireshark for graphical traffic analysis\n\n");
     fprintf(stdout, "Usage:\n");
     fprintf(stdout, "  %s [options]\n", argv0);
     fprintf(stdout, "\n");
@@ -1091,30 +1104,31 @@ static void usage(const char *argv0)
     fprintf(stdout, "                         IB device, otherwise application behavior is undefined\n");
     #endif
     fprintf(stdout, "  -i, --ib-port=<port>   use port <port> of IB device (default 1)\n");
-    fprintf(stdout, "  -w, --write=<file>     dump file name (default \"%s\")\n"
-                    "                         '-' stands for stdout - enables piping to tcpdump or tshark.\n", config.out_file_name);
+    fprintf(stdout,
+            "  -w, --write=<file>     dump file name (default \"%s\")\n"
+            "                         '-' stands for stdout - enables piping to tcpdump or tshark.\n",
+            config.out_file_name);
     fprintf(stdout, "  -o, --output=<file>    alias for the '-w' option. Do not use - for backward compatibility\n");
     fprintf(stdout, "  -b, --max-burst=<log2 burst> log2 of the maximal burst size that can be\n"
-                    "                               captured with no packets loss.\n"
-                    "                               Each entry takes ~ MTU bytes of memory (default %d - %d entries)\n",
-                   config.log2entries_num ,
-                   1 << config.log2entries_num);
+            "                               captured with no packets loss.\n"
+            "                               Each entry takes ~ MTU bytes of memory (default %d - %d entries)\n",
+            config.log2entries_num,
+            1 << config.log2entries_num);
     fprintf(stdout, "  -s, --silent           do not print progress indication.\n");
     fprintf(stdout, "  -T, --conti            Use contiguous pages.\n");
     fprintf(stdout, "  -M, --mem-mode <size>  when specified, packets are written to file only after the capture\n"
-                    "                         is stopped. It is faster than default mode (less chance for\n"
-                    "                         packet loss), but takes more memory. In this mode, ibdump\n"
-                    "                         stops after <size> bytes are captured\n");
+            "                         is stopped. It is faster than default mode (less chance for\n"
+            "                         packet loss), but takes more memory. In this mode, ibdump\n"
+            "                         stops after <size> bytes are captured\n");
     fprintf(stdout, "  -p, --writer-thread <size>   Use a specific thread for writing data to disk.\n"
-                    "                               In order to use this functionality you have to specify the\n"
-                    "                               size of two temporary buffers used to save data while the\n"
-                    "                               thread writes to disk\n");
+            "                               In order to use this functionality you have to specify the\n"
+            "                               size of two temporary buffers used to save data while the\n"
+            "                               thread writes to disk\n");
     fprintf(stdout, "\n");
     fprintf(stdout, "  --decap                Decapsulate port mirroring headers. Should be used\n"
-                    "                         when capturing RSPAN traffic.\n");
+            "                         when capturing RSPAN traffic.\n");
     fprintf(stdout, "  -h, --help             Display this help screen.\n");
     fprintf(stdout, "  -v, --version          Print version information.\n");
-
 }
 
 /*****************************************
@@ -1125,28 +1139,29 @@ static void usage(const char *argv0)
 
 int __WIN_CDECL main(int argc, char *argv[])
 {
-    int src_qps_size = MAX_SRC_QPS;
-    int test_result = 1;
-    int hw_sniffer_on = 0;
-    int sw_sniffer_on = 0;
-    int sniff_tx = 1;
-    int sniff_rx = 1;
-    int iret;
-    int idx;
-    int rc;
-    u_int32_t src_qps[MAX_SRC_QPS];
-    u_int32_t entries_mask;
+    int              src_qps_size = MAX_SRC_QPS;
+    int              test_result = 1;
+    int              hw_sniffer_on = 0;
+    int              sw_sniffer_on = 0;
+    int              sniff_tx = 1;
+    int              sniff_rx = 1;
+    int              iret;
+    int              idx;
+    int              rc;
+    u_int32_t        src_qps[MAX_SRC_QPS];
+    u_int32_t        entries_mask;
     struct resources res;
-    char* ef;
+    char           * ef;
+
 #ifndef WIN_NOT_SUPPORTED
     pthread_t writer_thread;
 #endif
     enum ibdump_long_opts {
-        OPT_WITH_ERF    = 1000,
-        OPT_A0_MODE     = 1001
+        OPT_WITH_ERF = 1000,
+        OPT_A0_MODE  = 1001
     };
 
-    (void) hw_sniffer_on; //avoid not used variable warning.
+    (void)hw_sniffer_on;  /*avoid not used variable warning. */
 
     /* parse the command line parameters */
     while (1) {
@@ -1175,12 +1190,13 @@ int __WIN_CDECL main(int argc, char *argv[])
         };
 
         c = getopt_long(argc, argv, "p:w:d:i:o:b:hM:vC:EI:Lq:sm:jT", long_options, NULL);
-        if (c == -1)
+        if (c == -1) {
             break;
+        }
 
         switch (c) {
         case 'd':
-            config.dev_name = strdup(optarg); // TODO: Why strdup ?
+            config.dev_name = strdup(optarg); /* TODO: Why strdup ? */
             break;
 
         case 'm':
@@ -1235,7 +1251,7 @@ int __WIN_CDECL main(int argc, char *argv[])
 
         case 'T':
             config.contiguous_pages = 1;
-	    /* fall through */
+        /* fall through */
 
         case 'q':
             config.src_qp_str = optarg;
@@ -1250,7 +1266,7 @@ int __WIN_CDECL main(int argc, char *argv[])
                 return 1;
             }
             break;
-#endif // !WIN_NOT_SUPPORTED
+#endif /* !WIN_NOT_SUPPORTED */
 
 
         case 'E':
@@ -1263,7 +1279,7 @@ int __WIN_CDECL main(int argc, char *argv[])
 
         case OPT_WITH_ERF:
             config.with_erf = strtol(optarg, &ef, 0);
-            if (*ef != '\0' || (config.with_erf != 1 && config.with_erf != 0)) {
+            if ((*ef != '\0') || ((config.with_erf != 1) && (config.with_erf != 0))) {
                 fprintf(stderr, "-E- Bad parameter for --erf flag. Expected 0 or 1\n");
                 usage(argv[0]);
                 return 1;
@@ -1316,7 +1332,7 @@ int __WIN_CDECL main(int argc, char *argv[])
     }
 
     signal(SIGINT,  termination_handler);
-    #ifndef __WIN__ // no SIGPIPE on Windows
+    #ifndef __WIN__ /* no SIGPIPE on Windows */
     signal(SIGPIPE, termination_handler);
     signal(SIGTERM, termination_handler);
     signal(SIGHUP, termination_handler);
@@ -1351,7 +1367,7 @@ int __WIN_CDECL main(int argc, char *argv[])
     if (res.port_attr.transport != 0) {
         config.is_eth = 1;
     }
-#endif // !WIN_NOT_SUPPORTED
+#endif /* !WIN_NOT_SUPPORTED */
 
 
     /* print the used parameters for info*/
@@ -1386,12 +1402,12 @@ int __WIN_CDECL main(int argc, char *argv[])
 
 #endif
     } else {
-        #define MIN_FW_REQUIRED_ETH   "2.11.1140" // This is the initial version with sniffer rules support. RX only.
-        #define MIN_FW_REQUIRED_IB_RC    "2.33.1330" // This version contains a fix for sniffing in ib mode.
-        #define MIN_FW_REQUIRED_IB "2.33.5000" // This is the rc version that contains the fix in ib mode.
+        #define MIN_FW_REQUIRED_ETH   "2.11.1140" /* This is the initial version with sniffer rules support. RX only. */
+        #define MIN_FW_REQUIRED_IB_RC "2.33.1330"    /* This version contains a fix for sniffing in ib mode. */
+        #define MIN_FW_REQUIRED_IB    "2.33.5000" /* This is the rc version that contains the fix in ib mode. */
         char* min_fw;
         char* min_fw_rc;
-        if (config.is_eth){
+        if (config.is_eth) {
             min_fw = MIN_FW_REQUIRED_ETH;
             min_fw_rc = MIN_FW_REQUIRED_ETH;
         } else {
@@ -1407,7 +1423,7 @@ int __WIN_CDECL main(int argc, char *argv[])
         } else if (fwvlt < 0) {
             fprintf(stderr, "-W- Bad device firmware version format (%s) - skipping check\n",
                     res.device_attr.fw_ver);
-            // orenk: fix goto cleanup;
+            /* orenk: fix goto cleanup; */
         }
         if (set_sw_sniffer(&res, 1, sniff_tx, sniff_rx)) {
             goto cleanup;
@@ -1416,7 +1432,7 @@ int __WIN_CDECL main(int argc, char *argv[])
     }
 
     if (!config.is_eth && !config.with_erf) {
-        // IB must have an ERF header.
+        /* IB must have an ERF header. */
         fprintf(stderr, "-E- Can not dump Infiniband traffic without an ERF header (--erf 0)\n");
         return -1;
     }
@@ -1428,20 +1444,20 @@ int __WIN_CDECL main(int argc, char *argv[])
 
     my_printf("\nReady to capture (Press ^c to stop):\n");
 
-    // Main loop:
+    /* Main loop: */
     entries_mask = (config.entries_num - 1);
     idx = 0;
     while (!g_stop_sniffer &&
-           ( config.mem_size == 0 ||
-             config.writer_thread ||
-             res.dumped_bytes < config.mem_size)) {
+           (config.mem_size == 0 ||
+            config.writer_thread ||
+            res.dumped_bytes < config.mem_size)) {
         int rc;
         int added_packets;
         if (poll_completion(&res, res.fh, idx, &added_packets)) {
             fprintf(stderr, "-E- poll completion failed\n");
             goto cleanup;
         }
-        if (!g_stop_sniffer && added_packets > 0) {
+        if (!g_stop_sniffer && (added_packets > 0)) {
             rc = post_receive(&res, idx);
             if (rc) {
                 fprintf(stderr, "-E- failed to post RR\n");
@@ -1452,7 +1468,7 @@ int __WIN_CDECL main(int argc, char *argv[])
     }
 
     my_printf("\n");
-    if (config.mem_size && res.dumped_bytes >= config.mem_size) {
+    if (config.mem_size && (res.dumped_bytes >= config.mem_size)) {
         my_printf("Buffer full ...\n");
     }
 
@@ -1489,4 +1505,3 @@ cleanup:
 
     return test_result;
 }
-
