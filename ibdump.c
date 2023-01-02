@@ -325,7 +325,7 @@ int get_hw_devid(mfile* mf, u_int32_t* devid)
     if (mread4(mf, 0xf0014, devid) != 4) {
         return -1;
     }
-    *device_id = (*device_id & 0xffff);
+    *devid = (*devid & 0xffff);
     return 0;
 }
 #endif
