@@ -988,7 +988,10 @@ int set_sw_sniffer(struct resources *res, int mode, int is_tx, int is_rx)
     if ((res->dev_rev_id == DI_CIB) || (res->dev_rev_id == DI_CX4) ||
         (res->dev_rev_id == DI_CX4LX) || (res->dev_rev_id == DI_CX5) ||
         (res->dev_rev_id == DI_CX6) || (res->dev_rev_id == DI_CX6DX) ||
-        (res->dev_rev_id == DI_CX7)) {
+        (res->dev_rev_id == DI_CX7) || (res->dev_rev_id != DI_CX8) ||
+        (res->dev_rev_id != DI_BF2) || (res->dev_rev_id != DI_BF2A1) ||
+        (res->dev_rev_id != DI_BF3) || (res->dev_rev_id != DI_BF4))
+    {
         return fifth_gen_set_sw_sniffer(res, mode);
     }
     return fourth_gen_set_sw_sniffer(res, mode, is_tx, is_rx);
