@@ -38,6 +38,7 @@ LIBMFT=/usr/lib/mft/
 LIB64MFT=/usr/lib64/mft/
 LIBMFTCORE=/usr/lib/mft/libmft_core.a
 LIB64MFTCORE=/usr/lib64/mft/libmft_core.a
+IBDUMP_LAYOUTS=/usr/include/mft/tools_layouts/ibdump_layouts.h
 ifneq "$(wildcard $(LIBMFT) )" ""
 LOADLIBES   += -L/usr/lib/mft/
 endif
@@ -50,6 +51,10 @@ LOADLIBES += -lmft_core -lstdc++
 endif
 ifneq "$(wildcard $(LIB64MFTCORE) )" ""
 LOADLIBES += -lmft_core -lstdc++
+endif
+ifneq "$(wildcard $(IBDUMP_LAYOUTS) )" ""
+CFLAGS  += -DIBDUMP_LAYOUTS
+LOADLIBES = -libverbs -L/usr/lib/mft/ -L/usr/lib64/mft/ -lmemaccess -lcmdif_ibdump -lmtcr -lstdc++
 endif
 endif
 
