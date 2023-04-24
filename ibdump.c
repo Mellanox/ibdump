@@ -947,22 +947,32 @@ int fifth_gen_set_sw_sniffer(struct resources *res, int mode)
 }
 #else
 #if defined(WITH_MSTFLINT)
+#define SNIFFER_STRUCT connectib_icmd_set_port_sniffer
 #include <tools_layouts/icmd_layouts.h>
 #include <cmdif/icmd_cif_common.h>
 #include <cmdif/icmd_cif_open.h>
 #include <common/compatibility.h>
 #else
 #include <cmdif/cib_cif.h>
+
+#if defined(IBDUMP_LAYOUTS)
+#include <cmdif/icmd_ibdump.h>
+#include <tools_layouts/ibdump_layouts.h>
+#define SNIFFER_STRUCT ibdump_icmd_set_port_sniffer
+#else
+#define SNIFFER_STRUCT connectib_icmd_set_port_sniffer
+#endif
+
 #endif
 int fifth_gen_set_sw_sniffer(struct resources *res, int mode)
 {
-    struct connectib_icmd_set_port_sniffer set_port_sniffer;
-    int                                    rc;
+    struct SNIFFER_STRUCT set_port_sniffer;
+    int                   rc;
 
     /* To disable write protection */
     mwrite4(res->mf, 0x23f0, 0xbadc0ffe);
 
-    memset(&set_port_sniffer, 0, sizeof(struct connectib_icmd_set_port_sniffer));
+    memset(&set_port_sniffer, 0, sizeof(struct SNIFFER_STRUCT));
     set_port_sniffer.port = config.ib_port;
     set_port_sniffer.sniffer_qpn = res->qp->qp_num;
     set_port_sniffer.sx_rx_ = 0;
@@ -982,7 +992,7 @@ int fifth_gen_set_sw_sniffer(struct resources *res, int mode)
     }
     return 0;
 }
-#endif
+#endif /* if defined(__WIN__) || defined(WITHOUT_FW_TOOLS) */
 int set_sw_sniffer(struct resources *res, int mode, int is_tx, int is_rx)
 {
     if ((res->dev_rev_id == DI_CIB) || (res->dev_rev_id == DI_CX4) ||
@@ -996,6 +1006,7 @@ int set_sw_sniffer(struct resources *res, int mode, int is_tx, int is_rx)
     }
     return fourth_gen_set_sw_sniffer(res, mode, is_tx, is_rx);
 }
+
 
 #define MAX_ARG_SIZE 1024
 /* size in INOUT - IN - size of arr. OUT - actual count. */
