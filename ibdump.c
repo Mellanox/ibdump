@@ -969,8 +969,15 @@ int fifth_gen_set_sw_sniffer(struct resources *res, int mode)
     struct SNIFFER_STRUCT set_port_sniffer;
     int                   rc;
 
-    /* To disable write protection */
-    mwrite4(res->mf, 0x23f0, 0xbadc0ffe);
+    
+    if (res->dev_rev_id == DI_CX8)
+    {
+        mwrite4(res->mf, 0x1a023f0, 0xbadc0ffe);
+    }
+    else
+    {
+        mwrite4(res->mf, 0x23f0, 0xbadc0ffe);
+    }
 
     memset(&set_port_sniffer, 0, sizeof(struct SNIFFER_STRUCT));
     set_port_sniffer.port = config.ib_port;
