@@ -52,7 +52,8 @@ enum devid {
     DI_BF3 =    0x00021c,
     DI_BF4 =    0x000220,
     DI_CX7 =    0x000218,
-    DI_CX8 =    0x00021e
+    DI_CX8 =    0x00021e,
+    DI_CX9 =    0x000224,
 };
 
 #endif
