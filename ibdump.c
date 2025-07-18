@@ -457,7 +457,8 @@ static int resources_create(struct resources *res)
         (res->dev_rev_id != DI_BF3) &&
         (res->dev_rev_id != DI_BF4) &&
         (res->dev_rev_id != DI_CX7) &&
-        (res->dev_rev_id != DI_CX8)) {
+        (res->dev_rev_id != DI_CX8) &&
+        (res->dev_rev_id != DI_CX9)) {
         fprintf(stderr, "-E- Unsupported HW device id (%x)\n", res->dev_rev_id);
         return -1;
     }
@@ -970,7 +971,7 @@ int fifth_gen_set_sw_sniffer(struct resources *res, int mode)
     int                   rc;
 
     
-    if (res->dev_rev_id == DI_CX8)
+    if (res->dev_rev_id == DI_CX8 || res->dev_rev_id == DI_CX9)
     {
         mwrite4(res->mf, 0x1a023f0, 0xbadc0ffe);
     }
@@ -1006,8 +1007,9 @@ int set_sw_sniffer(struct resources *res, int mode, int is_tx, int is_rx)
         (res->dev_rev_id == DI_CX4LX) || (res->dev_rev_id == DI_CX5) ||
         (res->dev_rev_id == DI_CX6) || (res->dev_rev_id == DI_CX6DX) ||
         (res->dev_rev_id == DI_CX7) || (res->dev_rev_id != DI_CX8) ||
-        (res->dev_rev_id != DI_BF2) || (res->dev_rev_id != DI_BF2A1) ||
-        (res->dev_rev_id != DI_BF3) || (res->dev_rev_id != DI_BF4))
+        (res->dev_rev_id != DI_CX9) || (res->dev_rev_id != DI_BF2) ||
+        (res->dev_rev_id != DI_BF2A1) || (res->dev_rev_id != DI_BF3) ||
+        (res->dev_rev_id != DI_BF4))
     {
         return fifth_gen_set_sw_sniffer(res, mode);
     }
