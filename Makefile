@@ -1,3 +1,7 @@
+$(warning !!!WARNING: The ibdump repository will be removed by the end of 2025. See the README file for more details!!!)
+$(warning !!!WARNING: The ibdump repository will be removed by the end of 2025. See the README file for more details!!!)
+$(warning !!!WARNING: The ibdump repository will be removed by the end of 2025. See the README file for more details!!!)
+
 VERSION    = 3.0.0-7
 PREFIX     = /usr
 EXE        = ibdump
