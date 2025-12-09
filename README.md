@@ -1,4 +1,4 @@
-The ibdump repository will be removed by the end of 2025.
+The ibdump repository will be removed by the end of 2026.
 You can use ibdump from the mstflint project:
 https://github.com/Mellanox/mstflint
 
