@@ -33,7 +33,7 @@
 */
 
 #define MTCR_EXPORT
-#include <mtcr/mtcr.h>
+#include <mtcr.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "ibd_hw_access.h"
