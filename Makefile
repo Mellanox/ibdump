@@ -58,7 +58,7 @@ LOADLIBES += -lmft_core -lstdc++
 endif
 ifneq "$(wildcard $(IBDUMP_LAYOUTS) )" ""
 CFLAGS  += -DIBDUMP_LAYOUTS
-LOADLIBES = -libverbs -L/usr/lib/mft/ -L/usr/lib64/mft/ -lmemaccess -lcmdif_ibdump -lmtcr -lstdc++
+LOADLIBES = -libverbs -L/usr/lib/mft/ -L/usr/lib64/mft/ -lmemaccess -lcmdif_ibdump -lmtcr -lstdc++ -lm
 endif
 endif
 
@@ -79,7 +79,7 @@ endif
 ifneq "$(wildcard $(LIB64MSTFLINT_LOCAL) )" ""
 LOADLIBES   += -L/usr/local/lib64/mstflint/
 endif
-LOADLIBES   += -lcmdif -ldev_mgt -lreg_access -ltools_layouts -lmtcr_ul
+LOADLIBES   += -lcmdif -ldev_mgt -lreg_access -ltools_layouts -lmtcr_ul -lm
 endif
 
 LOADLIBES   += -ldl -lpthread
